@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeContextClicked|typeViewAccessibilityFocused|typeViewClicked|typeViewFocused"
+    android:canRetrieveWindowContent="true"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagIncludeNotImportantViews|flagReportViewIds"
+    android:notificationTimeout="100"
+    android:canPerformGestures="true"
+    />
