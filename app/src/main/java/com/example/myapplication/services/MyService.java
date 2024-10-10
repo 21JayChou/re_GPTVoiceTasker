@@ -1,36 +1,58 @@
 package com.example.myapplication.services;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.speech.SpeechRecognizer;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Xml;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.utils.widget.MotionLabel;
 
+import com.example.myapplication.R;
 import com.example.myapplication.graphdatabase.Graph;
 import com.example.myapplication.graphdatabase.Node;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import com.example.myapplication.Command;
 
@@ -55,12 +77,13 @@ import com.google.gson.reflect.TypeToken;
 
 import org.xmlpull.v1.XmlSerializer;
 
-public class MyService extends AccessibilityService {
+
+public class MyService extends AccessibilityService implements View.OnTouchListener{
 
     final String FILE_NAME = "voicify";
     int width, height;
-    Button listenButton;
-    Button resetBtn;
+    Button startButton;
+    Button dumpBtn;
 
     Retrofit retrofit;
     String currentActivityName;
@@ -127,7 +150,8 @@ public class MyService extends AccessibilityService {
     String currentScreenXML = "";
     ArrayList<PackageDataObject> packageDataObjects = new ArrayList<>();
     MotionLabel textMsg = null;
-
+    private boolean isStarted;
+    AccessibilityServiceInfo serviceInfo;
 
     private void updateScreenXML() {
         XmlSerializer serializer = Xml.newSerializer();
@@ -151,6 +175,7 @@ public class MyService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (!isStarted) return;
         AccessibilityNodeInfo source = event.getSource();
         setCurrentActName(event);
         //Log.d("DEBUG","1");
@@ -181,6 +206,12 @@ public class MyService extends AccessibilityService {
         }
 
     }
+
+    @Override
+    public void onInterrupt() {
+
+    }
+
 
     protected void onServiceConnected() {
         /**
@@ -217,6 +248,12 @@ public class MyService extends AccessibilityService {
         if (currentNodeGraph == null){
             loadCurrentNodeGraph();
         }
+        serviceInfo = new AccessibilityServiceInfo();
+        serviceInfo.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
+        serviceInfo.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+        setServiceInfo(serviceInfo);
+
+
         Log.d("GRAPH", graph.toString());
         Log.d(debugLogTag, "Service Connected");
         loadAppNames();
@@ -584,12 +621,167 @@ public class MyService extends AccessibilityService {
         }
     }
 
-    @Override
-    public void onInterrupt() {
+    private void createSwitch() {
+        /**
+         * This code will create a layout for the switch. This code is called whenever service is
+         * connected and will be gone when service is shutdown
+         *
+         */
+
+        // Check for permissions
+        int LAYOUT_FLAG;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY;
+        } else {
+            LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_PHONE;
+        }
+        mLayout = new FrameLayout(this);
+
+        // Create layout for switchBar
+        switchBar = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                LAYOUT_FLAG,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+        switchBar.gravity = Gravity.TOP;  // stick it to the top
+        //WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View actionBar = inflater.inflate(R.layout.action_bar, mLayout);
+        wm.addView(mLayout, switchBar);       // add it to the screen
+
+
+        startButton = mLayout.findViewById(R.id.listenBtn);
+        dumpBtn = mLayout.findViewById(R.id.resetBtn);
+        // textMsg = mLayout.findViewById(R.id.msg);
+        //  inputTxt = mLayout.findViewById(R.id.inputTxt);
+        //  inputTxt.setBackgroundResource(R.color.black);
+        startButton.setBackgroundResource(R.drawable.start_btn);
+        configureStartButton();
+        configureDumpButton();
     }
 
-    private void saveInfoToLocal(String componentInfo, String xmlStructure) {
-        // 实现信息的本地存储逻辑
+    private void configureStartButton() {
+        /**
+         * This function is called after the service has been connected. This function binds
+         * functionality to the master button which can be used to turn on/off the tool.
+         *
+         * @param: None
+         * @return: None
+         * @post-cond: functionality has been added to the inflated button
+         * */
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (startButton.getText().toString().equalsIgnoreCase("start")) {
+                    startButton.setText("Stop");
+                    startButton.setBackgroundResource(R.drawable.stop_btn);
+                    isStarted = true;
+                } else {
+                    startButton.setText("Start");
+
+                    startButton.setBackgroundResource(R.color.transparent);
+                    isStarted = false;
+                    startButton.setBackgroundResource(R.drawable.start_btn);
+                    //         textMsg.setText("");
+                }
+            }
+        });
+    }
+
+    private void configureDumpButton() {
+        /**
+         * This function is called after the service has been connected. This function binds
+         * functionality to the master button which can be used to turn on/off the tool.
+         *
+         * @param: None
+         * @return: None
+         * @post-cond: functionality has been added to the inflated button
+         * */
+
+        dumpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getScreenShot();
+                getXML();
+            }
+        });
+    }
+
+    private void getXML() {
+        XmlSerializer serializer = Xml.newSerializer();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try {
+            serializer.setOutput(outputStream, "UTF-8");
+            serializer.startDocument(null, true);
+            AccessibilityNodeInfoDumper.dumpNodeRec(getRootInActiveWindow(), serializer, 0, false, width, height, false);
+            serializer.endDocument();
+            String xml = outputStream.toString("UTF-8");
+            File file = new File(getApplicationContext().getExternalFilesDir("screenshots"),"screenshot.png");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(file);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            osw.write(xml);
+            osw.close();
+            fos.flush();
+            fos.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getScreenShot() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Display display = getDisplay();
+            if(display != null) {
+                takeScreenshot(display.getDisplayId(), getMainExecutor(), new TakeScreenshotCallback() {
+                    @Override
+                    public void onSuccess(@NonNull ScreenshotResult screenshotResult) {
+                        Bitmap bitmap = Bitmap.wrapHardwareBuffer(screenshotResult.getHardwareBuffer(), screenshotResult.getColorSpace());
+                        try {
+                        File file = new File(getApplicationContext().getExternalFilesDir("screenshots"),"screenshot.png");
+                        if (!file.exists()) {
+                            file.createNewFile();
+                        }
+                        FileOutputStream fos = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        fos.flush();
+                        fos.close();
+                        } catch (IOException e) {
+                            System.err.println("Error saving screenshot: " + e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int i) {
+                        Log.e("Error","截图获取失败");
+                    }
+                });
+            }
+        }
+
+    }
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        return false;
     }
 }
+
+
 

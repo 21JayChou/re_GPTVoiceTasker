@@ -9,6 +9,7 @@ activity = "1.8.0"
 constraintlayout = "2.1.4"
 converter-gson = "2.9.0"
 retrofit = "2.9.0"
+commons-imaging = "1.0-alpha2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -20,6 +21,8 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit"}
 convertergson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converter-gson"}
+commons-imaging = { module = "org.apache.commons:commons-imaging", version.ref = "commons-imaging" }
+commons-imaging-formats-jpeg = { module = "org.apache.commons:commons-imaging-formats-jpeg", version.ref = "commons-imaging"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
