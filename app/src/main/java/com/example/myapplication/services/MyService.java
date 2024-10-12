@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -152,6 +153,7 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
     MotionLabel textMsg = null;
     private boolean isStarted;
     AccessibilityServiceInfo serviceInfo;
+    int barHeight;
 
     private void updateScreenXML() {
         XmlSerializer serializer = Xml.newSerializer();
@@ -238,6 +240,7 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
         //loadData();
         loadAPIConnection();
         getDisplayMetrics();
+        Log.d("Size", "width:"+width+",height:"+height);
         currentSource = getRootInActiveWindow();
         currentPackageName = currentSource.getPackageName().toString();
         updateScreenXML();
@@ -245,9 +248,9 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
         graph = new Graph(currentSource.getPackageName().toString(), getApplicationContext());
 //        graph = new Graph("", getApplicationContext());
         currentNodeGraph = graph.getNodeByXML(currentScreenXML);
-        if (currentNodeGraph == null){
-            loadCurrentNodeGraph();
-        }
+//        if (currentNodeGraph == null){
+//            loadCurrentNodeGraph();
+//        }
         serviceInfo = new AccessibilityServiceInfo();
         serviceInfo.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
         serviceInfo.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
@@ -258,6 +261,8 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
         Log.d(debugLogTag, "Service Connected");
         loadAppNames();
         //createText2VecModel();
+        createSwitch();
+        getStatusBarHeight();
 
     }
 
@@ -680,6 +685,9 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
                     startButton.setText("Stop");
                     startButton.setBackgroundResource(R.drawable.stop_btn);
                     isStarted = true;
+                    if (currentNodeGraph == null){
+                        loadCurrentNodeGraph();
+                    }
                 } else {
                     startButton.setText("Start");
 
@@ -705,8 +713,16 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
         dumpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getScreenShot();
+
+
+                try {
+                    getScreenShot();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 getXML();
+//                startButton.setVisibility(View.VISIBLE);
+//                dumpBtn.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -721,60 +737,139 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
             AccessibilityNodeInfoDumper.dumpNodeRec(getRootInActiveWindow(), serializer, 0, false, width, height, false);
             serializer.endDocument();
             String xml = outputStream.toString("UTF-8");
-            File file = new File(getApplicationContext().getExternalFilesDir("screenshots"),"screenshot.png");
-            if (!file.exists()) {
-                file.createNewFile();
+            File xmlDir = getApplicationContext().getExternalFilesDir("xmls");
+            if (!xmlDir.exists()) {
+                xmlDir.mkdirs();
             }
+
+            // 查找文件夹中现有文件的所有编号
+            TreeSet<Integer> usedIndices = new TreeSet<>();;
+            File[] files = xmlDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    String fileName = file.getName();
+                    // 检查文件是否符合"数字.xml"格式
+                    if (fileName.endsWith(".xml")) {
+                        try {
+                            String numberPart = fileName.substring(0, fileName.indexOf("."));
+                            int fileIndex = Integer.parseInt(numberPart);
+                           usedIndices.add(fileIndex);
+                        } catch (NumberFormatException e) {
+                            // 忽略非数字开头的文件
+                        }
+                    }
+                }
+            }
+
+            // 找到最小的未使用编号
+            int newIndex = 1;
+            for(int index : usedIndices){
+                if(newIndex == index) newIndex++;
+                else break;
+            }
+
+            // 设置新文件名为最小未使用编号
+            String newFileName = newIndex + ".xml";
+            File file = new File(xmlDir, newFileName);
             FileOutputStream fos = new FileOutputStream(file);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
             osw.write(xml);
             osw.close();
             fos.flush();
             fos.close();
+            Log.d("Success", "xml获取成功:"+file.getAbsolutePath());
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void getScreenShot() {
+    private void getScreenShot() throws InterruptedException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Display display = getDisplay();
-            if(display != null) {
-                takeScreenshot(display.getDisplayId(), getMainExecutor(), new TakeScreenshotCallback() {
-                    @Override
-                    public void onSuccess(@NonNull ScreenshotResult screenshotResult) {
-                        Bitmap bitmap = Bitmap.wrapHardwareBuffer(screenshotResult.getHardwareBuffer(), screenshotResult.getColorSpace());
-                        try {
-                        File file = new File(getApplicationContext().getExternalFilesDir("screenshots"),"screenshot.png");
-                        if (!file.exists()) {
-                            file.createNewFile();
-                        }
-                        FileOutputStream fos = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
-                        } catch (IOException e) {
-                            System.err.println("Error saving screenshot: " + e);
-                        }
-                    }
+            startButton.setVisibility(View.INVISIBLE);
+            dumpBtn.setVisibility(View.INVISIBLE);
 
-                    @Override
-                    public void onFailure(int i) {
-                        Log.e("Error","截图获取失败");
+            // 延迟一段时间，确保按钮可见性状态更新完毕
+            startButton.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (startButton.getVisibility() == View.INVISIBLE && dumpBtn.getVisibility() == View.INVISIBLE) {
+                        takeScreenshot(0, getMainExecutor(), new TakeScreenshotCallback() {
+                            @Override
+                            public void onSuccess(@NonNull ScreenshotResult screenshotResult) {
+                                Bitmap bitmap = Bitmap.wrapHardwareBuffer(screenshotResult.getHardwareBuffer(), screenshotResult.getColorSpace());
+                                int w = bitmap.getWidth(), h = bitmap.getHeight();
+                                bitmap = Bitmap.createBitmap(bitmap, 0, barHeight, w, h - barHeight, null, false);
+                                try {
+                                    // 获取截图保存的文件夹路径
+                                    File screenshotDir = getApplicationContext().getExternalFilesDir("screenshots");
+                                    if (!screenshotDir.exists()) {
+                                        screenshotDir.mkdirs();
+                                    }
+
+                                    // 查找文件夹中现有文件的最大编号
+                                    TreeSet<Integer> usedIndices = new TreeSet<>();;
+                                    File[] files = screenshotDir.listFiles();
+                                    if (files != null) {
+                                        for (File file : files) {
+                                            String fileName = file.getName();
+                                            // 检查文件是否符合"数字.jpg"格式
+                                            if (fileName.endsWith(".jpg")) {
+                                                try {
+                                                    String numberPart = fileName.substring(0, fileName.indexOf("."));
+                                                    int fileIndex = Integer.parseInt(numberPart);
+                                                    usedIndices.add(fileIndex);
+                                                } catch (NumberFormatException e) {
+                                                    // 忽略非数字开头的文件
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // 找到最小的未使用编号
+                                    int newIndex = 1;
+                                    for(int index : usedIndices){
+                                        if(newIndex == index) newIndex++;
+                                        else break;
+                                    }
+
+                                    // 设置新文件名为最小未使用编号
+                                    String newFileName = newIndex + ".jpg";
+                                    File newFile = new File(screenshotDir, newFileName);
+
+                                    // 保存截图
+                                    FileOutputStream fos = new FileOutputStream(newFile);
+                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                    fos.flush();
+                                    fos.close();
+                                    Log.d("Success", "截图成功: " + newFile.getAbsolutePath());
+
+                                    // 恢复按钮可见性
+                                    startButton.setVisibility(View.VISIBLE);
+                                    dumpBtn.setVisibility(View.VISIBLE);
+                                } catch (IOException e) {
+                                    System.err.println("Error saving screenshot: " + e);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(int i) {
+                                Log.e("Error", "截图获取失败");
+                                startButton.setVisibility(View.VISIBLE);
+                                dumpBtn.setVisibility(View.VISIBLE);
+                            }
+                        });
                     }
-                });
-            }
+                }
+            }, 2000); // 延迟 200 毫秒（根据需要调整时间）
         }
-
     }
-    private int getStatusBarHeight() {
-        int result = 0;
+
+    private void getStatusBarHeight() {
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
+            barHeight = getResources().getDimensionPixelSize(resourceId);
         }
-        return result;
     }
 
     @Override

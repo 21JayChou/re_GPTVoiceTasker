@@ -54,7 +54,7 @@ public class Graph {
     public Node getNodeByXML(String currentScreenXML){
         Node bestMatchedNode = null;
         for(Node currentNode: getAllNodes()){
-            if(Utils.calculateStringSimilarity(currentScreenXML, currentNode.screenDumperXML)){
+            if(Utils.calculateStringSimilarity(currentScreenXML, currentNode.screenDumperXML)>0.7){
                 bestMatchedNode = currentNode;
             }
         }
@@ -82,7 +82,7 @@ public class Graph {
 
         Node bestMatchedNode = null;
         for(Node currentNode: getAllNodes()){
-            if(Utils.calculateStringSimilarity(currentScreenXML, currentNode.screenDumperXML)){
+            if(Utils.calculateStringSimilarity(currentScreenXML, currentNode.screenDumperXML)>0.7){
                 bestMatchedNode = currentNode;
 
             }

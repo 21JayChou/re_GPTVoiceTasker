@@ -104,11 +104,8 @@ public class Utils {
         }
     }
 
-    public static boolean calculateCombinedSimilarity(String str1, String path1, String str2, String path2){
 
-    }
-
-    public static boolean calculateStringSimilarity(String str1, String str2) {
+    public static double calculateStringSimilarity(String str1, String str2) {
         str1 = str1.replaceAll(" id=\"[0-9]+\"", "");
         str2 = str2.replaceAll(" id=\"[0-9]+\"", "");
         int len1 = str1.length();
@@ -153,7 +150,7 @@ public class Utils {
         double sim = 1.0 - ((double) prev[len2] / Math.max(len1, len2));  // 注意这里使用的是 prev，因为最后一次交换后，prev 存储了最终的结果
 
 
-        return sim > 0.7;
+        return sim ;
     }
 
     public static boolean calculateDescSimilarity(String str1, String str2) {
@@ -267,6 +264,18 @@ public class Utils {
         return distance;
     }
 
+    public static double calculatePHashSimilarity( String path1, String path2){
+        String pHash1 = calculatepHash(path1), pHash2 = calculatepHash(path2);
+        return 1- hammingDistance(pHash1, pHash2)*1.0/64;
+    }
+
+    public static double calculateCombinedSimilarity(String str1, String path1, String str2, String path2){
+        double pHashSimilarity = calculatePHashSimilarity(path1, path2);
+        double xmlSimilarity = calculateStringSimilarity(str1, str2);
+
+
+        return (pHashSimilarity + xmlSimilarity)/2;
+    }
 
 
 }

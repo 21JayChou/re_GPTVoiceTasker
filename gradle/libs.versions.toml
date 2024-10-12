@@ -10,7 +10,7 @@ constraintlayout = "2.1.4"
 converter-gson = "2.9.0"
 retrofit = "2.9.0"
 commons-imaging = "1.0-alpha2"
-
+robolectric = "4.10.3"
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -21,8 +21,9 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit"}
 convertergson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converter-gson"}
-commons-imaging = { module = "org.apache.commons:commons-imaging", version.ref = "commons-imaging" }
-commons-imaging-formats-jpeg = { module = "org.apache.commons:commons-imaging-formats-jpeg", version.ref = "commons-imaging"}
+#commons-imaging = { module = "org.apache.commons:commons-imaging", version.ref = "commons-imaging" }
+#commons-imaging-formats-jpeg = { module = "org.apache.commons:commons-imaging-formats-jpeg", version.ref = "commons-imaging"}
+robolectric = {module = "org.robolectric:robolectric", version.ref = "robolectric"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
