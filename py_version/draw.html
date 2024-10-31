@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directed Graph Visualization</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        #graph-container {
+            width: 50%;
+            background-color: #f0f0f0;
+            border-right: 1px solid #ccc;
+            position: relative;
+        }
+        #details-container {
+            width: 50%;
+            padding: 20px;
+            background-color: #ffffff;
+            overflow-y: auto;
+        }
+        .node-image, .edge-image {
+            width: 100px;
+            height: auto;
+            margin: 10px 0;
+        }
+        .node {
+            cursor: pointer;
+        }
+        .edge {
+            fill: none;
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 1.5px;
+            marker-end: url(#arrow);
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="graph-container"></div>
+    <div id="details-container">
+        <h3>Details</h3>
+        <div id="node-details" style="display: none;">
+            <p><strong>Node ID:</strong> <span id="node-id"></span></p>
+            <p><strong>Label:</strong> <span id="node-label"></span></p>
+            <p><strong>Description:</strong> <span id="node-description"></span></p>
+            <img id="node-image" class="node-image" src="" alt="Node Image">
+        </div>
+        <div id="edge-details" style="display: none;">
+            <p><strong>Edge ID:</strong> <span id="edge-id"></span></p>
+            <p><strong>From:</strong> <span id="edge-from"></span></p>
+            <p><strong>To:</strong> <span id="edge-to"></span></p>
+            <p><strong>Label:</strong> <span id="edge-label"></span></p>
+            <img id="edge-from-image" class="edge-image" src="" alt="From Node Image">
+            <img id="edge-to-image" class="edge-image" src="" alt="To Node Image">
+        </div>
+    </div>
+
+    <script>
+        const width = 600;
+        const height = 600;
+
+        const svg = d3.select("#graph-container")
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%");
+
+        // Define marker for directed edges
+        svg.append("defs").append("marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 15)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", "#999");
+
+        // Load JSON data
+        // d3.json("graphData.json").then(data => {
+        //     const nodes = data.nodes;
+        //     const edges = data.edges;
+        const nodes = [
+            { id: "1", label: "Node 1", description: "This is Node 1" },
+            { id: "2", label: "Node 2", description: "This is Node 2" },
+            { id: "3", label: "Node 3", description: "This is Node 3" }
+        ];
+
+        const edges = [
+            { id: "1-2", source: "1", target: "2", label: "Edge from 1 to 2" },
+            { id: "2-3", source: "2", target: "3", label: "Edge from 2 to 3" },
+            { id: "3-1", source: "3", target: "1", label: "Edge from 3 to 1" }
+        ];
+
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(edges).id(d => d.id).distance(150))
+                .force("charge", d3.forceManyBody().strength(-400))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            // Draw edges
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(edges)
+                .enter().append("line")
+                .attr("class", "edge")
+                .on("click", (event, d) => showEdgeDetails(d));
+
+            // Draw nodes
+            const node = svg.append("g")
+                .selectAll("image")
+                .data(nodes)
+                .enter().append("image")
+                .attr("xlink:href", d => d.image)
+                .attr("width", 50)
+                .attr("height", 50)
+                .attr("class", "node")
+                .on("click", (event, d) => showNodeDetails(d))
+                .call(drag(simulation));
+
+            // Add labels to nodes
+            const label = svg.append("g")
+                .selectAll("text")
+                .data(nodes)
+                .enter().append("text")
+                .attr("dy", 5)
+                .attr("text-anchor", "middle")
+                .text(d => d.label);
+
+            // Simulation tick
+            simulation.on("tick", () => {
+                link.attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node.attr("x", d => d.x - 25)
+                    .attr("y", d => d.y - 25);
+
+                label.attr("x", d => d.x)
+                     .attr("y", d => d.y + 35);
+            });
+
+            function drag(simulation) {
+                return d3.drag()
+                    .on("start", (event, d) => {
+                        if (!event.active) simulation.alphaTarget(0.3).restart();
+                        d.fx = d.x;
+                        d.fy = d.y;
+                    })
+                    .on("drag", (event, d) => {
+                        d.fx = event.x;
+                        d.fy = event.y;
+                    })
+                    .on("end", (event, d) => {
+                        if (!event.active) simulation.alphaTarget(0);
+                        d.fx = null;
+                        d.fy = null;
+                    });
+            }
+
+            function showNodeDetails(d) {
+                document.getElementById("node-details").style.display = "block";
+                document.getElementById("edge-details").style.display = "none";
+                document.getElementById("node-id").textContent = d.id;
+                document.getElementById("node-label").textContent = d.label;
+                document.getElementById("node-description").textContent = d.description;
+                document.getElementById("node-image").src = d.image;
+            }
+
+            function showEdgeDetails(d) {
+                document.getElementById("node-details").style.display = "none";
+                document.getElementById("edge-details").style.display = "block";
+                document.getElementById("edge-id").textContent = d.id;
+                document.getElementById("edge-from").textContent = d.source.id;
+                document.getElementById("edge-to").textContent = d.target.id;
+                document.getElementById("edge-label").textContent = d.label;
+                document.getElementById("edge-from-image").src = nodes.find(node => node.id === d.source.id).image;
+                document.getElementById("edge-to-image").src = nodes.find(node => node.id === d.target.id).image;
+            }
+        // });
+    </script>
+</body>

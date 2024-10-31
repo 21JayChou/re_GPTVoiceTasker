@@ -1,0 +1,264 @@
+{
+  "nodes": [
+    {
+      "id": "e1b1c0f7f171ce4e01f087d2733a1185",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133305.png",
+      "label": "LauncherUI\n<FIRST>",
+      "package": "com.tencent.mm",
+      "activity": ".ui.LauncherUI",
+      "state_str": "e1b1c0f7f171ce4e01f087d2733a1185",
+      "description": "This is the launcher UI screen for WeChat app, showing different sections and options for the user, including messaging, contacts, moments, and more.",
+      "font": "14px Arial red"
+    },
+    {
+      "id": "063896f143d6834f8e2abb29fdf61dcc",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133318.png",
+      "label": "LauncherUI",
+      "package": "com.tencent.mm",
+      "activity": ".ui.LauncherUI",
+      "state_str": "063896f143d6834f8e2abb29fdf61dcc",
+      "description": "This is the launcher UI screen in WeChat app, with options for search and more functions at the bottom."
+    },
+    {
+      "id": "df14c09fc567b0503739ce11de3a8fb5",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133341.png",
+      "label": "LauncherUI",
+      "package": "com.tencent.mm",
+      "activity": ".ui.LauncherUI",
+      "state_str": "df14c09fc567b0503739ce11de3a8fb5",
+      "description": "This is the launcher screen for the WeChat app, showing various sections and options for users to interact with."
+    },
+    {
+      "id": "b3e505e13d2200ac2a2491438e5927f4",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133406.png",
+      "label": "LauncherUI",
+      "package": "com.tencent.mm",
+      "activity": ".ui.LauncherUI",
+      "state_str": "b3e505e13d2200ac2a2491438e5927f4",
+      "description": "This is the launcher UI screen for WeChat app, showing various sections and options for the user."
+    },
+    {
+      "id": "ccad7f2917524a0c096ca5ec8aa6b9ed",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133507.png",
+      "label": "PreviewHdHeadImg",
+      "package": "com.tencent.mm",
+      "activity": ".plugin.setting.ui.setting.PreviewHdHeadImg",
+      "state_str": "ccad7f2917524a0c096ca5ec8aa6b9ed",
+      "description": "This is the screen for previewing and setting a high definition head image in WeChat, with options to view more information."
+    },
+    {
+      "id": "d95489698fb37c87eb08d1b3c763418d",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133519.png",
+      "label": "PreviewHdHeadImg",
+      "package": "com.tencent.mm",
+      "activity": ".plugin.setting.ui.setting.PreviewHdHeadImg",
+      "state_str": "d95489698fb37c87eb08d1b3c763418d",
+      "description": "This is the screen for setting a preview HD head image in WeChat, with options to choose and set a new profile picture."
+    },
+    {
+      "id": "6a9cc26aae6dd3ce0571ccf476b3b1cd",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133542.png",
+      "label": "LauncherUI",
+      "package": "com.tencent.mm",
+      "activity": ".ui.LauncherUI",
+      "state_str": "6a9cc26aae6dd3ce0571ccf476b3b1cd",
+      "description": "This is the launcher UI screen for WeChat app, showing various elements and options for the user to interact with."
+    },
+    {
+      "id": "7dda8536a95729c3a4083a773aecbebd",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133628.png",
+      "label": "FavoriteIndexUI\n<LAST>",
+      "package": "com.tencent.mm",
+      "activity": ".plugin.fav.ui.FavoriteIndexUI",
+      "state_str": "7dda8536a95729c3a4083a773aecbebd",
+      "description": "This is the favorite index page in WeChat app, with options for recent usage, links, files, and images/videos.",
+      "font": "14px Arial red"
+    },
+    {
+      "id": "bfca7aeb78b8c675b649765c5495c75c",
+      "shape": "image",
+      "image": ".\\data\\com.tencent.mm\\screenshots\\screen_2024-10-31_133640.png",
+      "label": "FavoriteTextDetailUI",
+      "package": "com.tencent.mm",
+      "activity": ".plugin.fav.ui.detail.FavoriteTextDetailUI",
+      "state_str": "bfca7aeb78b8c675b649765c5495c75c",
+      "description": "This is the screen for viewing detailed text in the favorite section of WeChat. The screen includes options for more information and additional actions related to the favorite text."
+    }
+  ],
+  "edges": [
+    {
+      "from": "e1b1c0f7f171ce4e01f087d2733a1185",
+      "to": "063896f143d6834f8e2abb29fdf61dcc",
+      "id": "e1b1c0f7f171ce4e01f087d2733a1185-->063896f143d6834f8e2abb29fdf61dcc",
+      "label": "1",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=e1b1c0f7f171ce4e01f087d2733a1185, view=2aeeabd20e1253976e502918a69221e4(.ui.LauncherUI/RelativeLayout-))",
+          "event_id": 1,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_2aeeabd20e1253976e502918a69221e4.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "e1b1c0f7f171ce4e01f087d2733a1185",
+      "to": "df14c09fc567b0503739ce11de3a8fb5",
+      "id": "e1b1c0f7f171ce4e01f087d2733a1185-->df14c09fc567b0503739ce11de3a8fb5",
+      "label": "3",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=e1b1c0f7f171ce4e01f087d2733a1185, view=17e784356dbe8887713d36683464d797(.ui.LauncherUI/ImageView-))",
+          "event_id": 3,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_17e784356dbe8887713d36683464d797.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "e1b1c0f7f171ce4e01f087d2733a1185",
+      "to": "7dda8536a95729c3a4083a773aecbebd",
+      "id": "e1b1c0f7f171ce4e01f087d2733a1185-->7dda8536a95729c3a4083a773aecbebd",
+      "label": "8",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=e1b1c0f7f171ce4e01f087d2733a1185, view=792bc86a109de4ecf8dc4cd5bb6b7f31(.ui.LauncherUI/LinearLayout-))",
+          "event_id": 8,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_792bc86a109de4ecf8dc4cd5bb6b7f31.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "063896f143d6834f8e2abb29fdf61dcc",
+      "to": "e1b1c0f7f171ce4e01f087d2733a1185",
+      "id": "063896f143d6834f8e2abb29fdf61dcc-->e1b1c0f7f171ce4e01f087d2733a1185",
+      "label": "2",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=063896f143d6834f8e2abb29fdf61dcc, view=2aeeabd20e1253976e502918a69221e4(.ui.LauncherUI/RelativeLayout-))",
+          "event_id": 2,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_2aeeabd20e1253976e502918a69221e4.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "df14c09fc567b0503739ce11de3a8fb5",
+      "to": "b3e505e13d2200ac2a2491438e5927f4",
+      "id": "df14c09fc567b0503739ce11de3a8fb5-->b3e505e13d2200ac2a2491438e5927f4",
+      "label": "4",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=df14c09fc567b0503739ce11de3a8fb5, view=792bc86a109de4ecf8dc4cd5bb6b7f31(.ui.LauncherUI/LinearLayout-))",
+          "event_id": 4,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_792bc86a109de4ecf8dc4cd5bb6b7f31.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "df14c09fc567b0503739ce11de3a8fb5",
+      "to": "ccad7f2917524a0c096ca5ec8aa6b9ed",
+      "id": "df14c09fc567b0503739ce11de3a8fb5-->ccad7f2917524a0c096ca5ec8aa6b9ed",
+      "label": "5",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=df14c09fc567b0503739ce11de3a8fb5, view=57f4a23463b713775cbd628314368b36(.ui.LauncherUI/View-))",
+          "event_id": 5,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_57f4a23463b713775cbd628314368b36.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "ccad7f2917524a0c096ca5ec8aa6b9ed",
+      "to": "d95489698fb37c87eb08d1b3c763418d",
+      "id": "ccad7f2917524a0c096ca5ec8aa6b9ed-->d95489698fb37c87eb08d1b3c763418d",
+      "label": "6",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=ccad7f2917524a0c096ca5ec8aa6b9ed, view=b86c7d4832d3345df2bee36bd07cda5b(.plugin.setting.ui.setting.PreviewHdHeadImg/ImageView-))",
+          "event_id": 6,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_b86c7d4832d3345df2bee36bd07cda5b.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "d95489698fb37c87eb08d1b3c763418d",
+      "to": "ccad7f2917524a0c096ca5ec8aa6b9ed",
+      "id": "d95489698fb37c87eb08d1b3c763418d-->ccad7f2917524a0c096ca5ec8aa6b9ed",
+      "label": "7",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=d95489698fb37c87eb08d1b3c763418d, view=8976650b3a9a87a9feda16b651cb9e92(.plugin.setting.ui.setting.PreviewHdHeadImg/LinearLayout-))",
+          "event_id": 7,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_8976650b3a9a87a9feda16b651cb9e92.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "7dda8536a95729c3a4083a773aecbebd",
+      "to": "bfca7aeb78b8c675b649765c5495c75c",
+      "id": "7dda8536a95729c3a4083a773aecbebd-->bfca7aeb78b8c675b649765c5495c75c",
+      "label": "9",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=7dda8536a95729c3a4083a773aecbebd, view=d8c9bc9f3dea53297001bb5203889df8(.plugin.fav.ui.FavoriteIndexUI/LinearLayout-))",
+          "event_id": 9,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_d8c9bc9f3dea53297001bb5203889df8.png"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "bfca7aeb78b8c675b649765c5495c75c",
+      "to": "7dda8536a95729c3a4083a773aecbebd",
+      "id": "bfca7aeb78b8c675b649765c5495c75c-->7dda8536a95729c3a4083a773aecbebd",
+      "label": "10",
+      "events": [
+        {
+          "event_str": "TouchEvent(state=bfca7aeb78b8c675b649765c5495c75c, view=e4d6810426f2693d4fc9771f28c6648d(.plugin.fav.ui.detail.FavoriteTextDetailUI/LinearLayout-))",
+          "event_id": 10,
+          "event_type": "touch",
+          "view_images": [
+            "views/view_e4d6810426f2693d4fc9771f28c6648d.png"
+          ]
+        }
+      ]
+    }
+  ],
+  "num_nodes": 9,
+  "num_edges": 10,
+  "num_effective_events": 10,
+  "num_reached_activities": 0,
+  "test_date": "2024-10-31 13:33:07",
+  "num_transitions": 15
+}

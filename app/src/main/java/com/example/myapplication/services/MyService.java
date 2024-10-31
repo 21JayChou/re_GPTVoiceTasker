@@ -90,7 +90,7 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
     String currentActivityName;
     JsonApi jsonApi;
     //ChatHistory chatHistory;
-    ArrayList<String> uiElements = new ArrayList<String>();
+
     ArrayList<String> appNames = new ArrayList<String>();
     SharedPreferences mPrefs;
 
@@ -100,13 +100,9 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
     String componentAsString = "";
     FrameLayout mLayout;
     ArrayList<LabelFoundNode> foundLabeledNodes = new ArrayList<>();
-    //ArrayList<TooltipRequiredNode> tooltipRequiredNodes = new ArrayList<>();
 
-    boolean isVoiceCommandConnected = false;
+
     String currentCommand = "";
-    int noOfLabels = 0;
-    SpeechRecognizer speechRecognizer;                      // declaring speech recognition var
-    Intent speechRecognizerIntent;
     String debugLogTag = "FIT4003_VOICIFY";                  // use this tag for all log tags.
     ArrayList<String> launchTriggers = new ArrayList<String>(Arrays.asList("load", "launch", "execute", "open"));
 
@@ -116,35 +112,11 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
 
     long currentTime;
 
-    // variable for switch bar coordinates
-    private int initialX;
-    private int initialY;
-    private float initialTouchX;
-    private float initialTouchY;
-
-    private int currentTooltipCount = 1;
 
     Graph graph;
     String currentPackageName = "";
     Node currentNodeGraph;
-    boolean isExecuting = false;
 
-    // new code
-    //ArrayList<PackageDataObject> packageDataObjects = new ArrayList<>();
-    int currentIntentIndex = 0;
-    String currentOpeningPackage;
-    String currentOpeningFeature;
-    String currentAppName;
-
-    ArrayList<String> matchedIntents = new ArrayList<>();
-
-    String[] tooltipColorSpinnerItems = new String[]{"#64b5f6", "#2b2b2b", "#ff4040"};
-    int[] tooltipSizeSpinnerItems = new int[]{14, 18, 22};
-    int[] tooltipOpacitySpinnerItems = new int[]{250, 220, 170, 120};
-
-    int tooltipColor = 0;
-    int tooltipSize = 0;
-    int tooltipOpacity = 0;
 
     String previousEventCode = "";
 
@@ -163,6 +135,7 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
             serializer.setOutput(outputStream, "UTF-8");
             serializer.startDocument(null, true);
             AccessibilityNodeInfoDumper.dumpNodeRec(getRootInActiveWindow(), serializer, 0, false, width, height, false);
+            AccessibilityNodeInfoDumper.currentIndex = 0;
             serializer.endDocument();
             currentScreenXML = outputStream.toString("UTF-8");
 
@@ -735,6 +708,7 @@ public class MyService extends AccessibilityService implements View.OnTouchListe
             serializer.setOutput(outputStream, "UTF-8");
             serializer.startDocument(null, true);
             AccessibilityNodeInfoDumper.dumpNodeRec(getRootInActiveWindow(), serializer, 0, false, width, height, false);
+            AccessibilityNodeInfoDumper.currentIndex = 0;
             serializer.endDocument();
             String xml = outputStream.toString("UTF-8");
             File xmlDir = getApplicationContext().getExternalFilesDir("xmls");
