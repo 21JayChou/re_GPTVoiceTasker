@@ -165,8 +165,7 @@ class UTG:
 
             for event_str, event_info in sorted(iter(events.items()), key=lambda x: x[1]["id"]):
                 event_short_descs.append((event_info["id"], event_str))
-                view_images = ["views/view_" + view["view_str"] + ".png"
-                                   for view in event_info["event"].get_views()]
+                view_images = [os.path.join(self.device.output_dir, "views", "view_"+ view["view_str"] + ".png")for view in event_info["event"].get_views()]
                 event_list.append({
                     "event_str": event_str,
                     "event_id": event_info["id"],

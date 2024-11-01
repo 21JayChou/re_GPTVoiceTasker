@@ -26,9 +26,13 @@
             background-color: #ffffff;
             overflow-y: auto;
         }
-        .node-image, .edge-image {
-            width: 100px;
-            height: auto;
+        .view-image{
+            width:auto;
+            height:50px;
+        }
+        .state-image, .edge-image {
+            width: 250px;
+            height: 500px;
             margin: 10px 0;
         }
         .node {
@@ -36,9 +40,9 @@
         }
         .edge {
             fill: none;
-            stroke: #999;
-            stroke-opacity: 0.6;
-            stroke-width: 1.5px;
+            stroke: #000000;
+            stroke-opacity: 0.8;
+            stroke-width: 4px;
             marker-end: url(#arrow);
         }
         .active {
@@ -51,63 +55,74 @@
     <div id="details-container">
         <h3>Details</h3>
         <div id="node-details" style="display: none;">
-            <p><strong>Node ID:</strong> <span id="node-id"></span></p>
-            <p><strong>Label:</strong> <span id="node-label"></span></p>
-            <p><strong>Description:</strong> <span id="node-description"></span></p>
-            <img id="node-image" class="node-image" src="" alt="Node Image">
+            <p><strong>State ID:</strong> <span id="state-id"></span></p>
+            <p><strong>Package:</strong> <span id="state-package"></span></p>
+            <p><strong>Activity:</strong> <span id="state-activity"></span></p>
+            <p><strong>Description:</strong> <span id="state-description"></span></p>
+            <img id="state-image" class="state-image" src="" alt="Node Image">
         </div>
         <div id="edge-details" style="display: none;">
             <p><strong>Edge ID:</strong> <span id="edge-id"></span></p>
-            <p><strong>From:</strong> <span id="edge-from"></span></p>
-            <p><strong>To:</strong> <span id="edge-to"></span></p>
-            <p><strong>Label:</strong> <span id="edge-label"></span></p>
-            <img id="edge-from-image" class="edge-image" src="" alt="From Node Image">
-            <img id="edge-to-image" class="edge-image" src="" alt="To Node Image">
+            <p><strong>Type:</strong> <span id="edge-type"></span></p>
+            <p><strong>View Image:</strong> <img id="view-image" class="view-image" src="" alt="View Image"></p>
+            <div style="display: flex; align-items: center;">
+                <img id="edge-from-image" class="edge-image" src="" alt="From Node Image">
+                <span style="margin: 0 10px; font-weight: bold;">TO</span> <!-- "TO" 在两张图片的中间 -->
+                <img id="edge-to-image" class="edge-image" src="" alt="To Node Image">
+            </div>
+            
         </div>
     </div>
 
     <script>
-        const width = 600;
-        const height = 600;
-
+        const svgWidth = 600;
+        const svgHeight = 600;
+        fetch('data\\com.tencent.mm\\utg.json')
+    .then(response => {
+        if (!response.ok) {
+         throw new Error('Network response was not ok');
+     }
+    return response.json();
+  })
+  .then(data => {
+    console.log(data);
+    // 在这里使用data对象
         const svg = d3.select("#graph-container")
             .append("svg")
             .attr("width", "100%")
-            .attr("height", "100%");
+            .attr("height", "100%")
+            .call(d3.zoom().scaleExtent([0.5, 2]) .on("zoom", (event) => {
+            svg.attr("transform", event.transform);
+    }))
+    .append("g");
 
-        // Define marker for directed edges
+        // Define marker for directed edgesew
         svg.append("defs").append("marker")
             .attr("id", "arrow")
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 15)
+            .attr("refX", 30)
             .attr("refY", 0)
             .attr("markerWidth", 6)
             .attr("markerHeight", 6)
             .attr("orient", "auto")
             .append("path")
             .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#999");
-
-        // Load JSON data
-        // d3.json("graphData.json").then(data => {
-        //     const nodes = data.nodes;
-        //     const edges = data.edges;
-        const nodes = [
-            { id: "1", label: "Node 1", description: "This is Node 1" },
-            { id: "2", label: "Node 2", description: "This is Node 2" },
-            { id: "3", label: "Node 3", description: "This is Node 3" }
-        ];
-
-        const edges = [
-            { id: "1-2", source: "1", target: "2", label: "Edge from 1 to 2" },
-            { id: "2-3", source: "2", target: "3", label: "Edge from 2 to 3" },
-            { id: "3-1", source: "3", target: "1", label: "Edge from 3 to 1" }
-        ];
+            .attr("fill", "#666");
+        nodes = data.nodes
+        edges = data.edges
+        edges.forEach(edge => {
+            edge.source = edge.from
+            edge.target = edge.to
+            delete edge.from
+            delete edge.to
+        });
 
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(edges).id(d => d.id).distance(150))
-                .force("charge", d3.forceManyBody().strength(-400))
-                .force("center", d3.forceCenter(width / 2, height / 2));
+                .force("link", d3.forceLink(edges).id(d => d.id).distance(200))
+                .force("charge", d3.forceManyBody().strength(-1000))
+                .force("center", d3.forceCenter(svgWidth / 2, svgHeight / 2))
+                .force("x", d3.forceX(svgWidth / 2).strength(0.1))
+                .force("y", d3.forceY(svgHeight / 2).strength(0.1));
 
             // Draw edges
             const link = svg.append("g")
@@ -115,6 +130,20 @@
                 .data(edges)
                 .enter().append("line")
                 .attr("class", "edge")
+                .attr("marker-end", "url(#arrow)")
+                .attr("stroke-width", 4)
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y)
+                .attr("transform", function(d) {
+                    // Check if there's a reverse edge and apply an offset
+                    const reverseEdge = edges.find(e => e.source === d.target && e.target === d.source);
+                    if (reverseEdge) {
+                        return `translate(0, ${d.index % 2 === 0 ? -15 : 15})`;
+                    }
+                    return "";
+                })
                 .on("click", (event, d) => showEdgeDetails(d));
 
             // Draw nodes
@@ -123,8 +152,8 @@
                 .data(nodes)
                 .enter().append("image")
                 .attr("xlink:href", d => d.image)
-                .attr("width", 50)
-                .attr("height", 50)
+                .attr("width", 100)
+                .attr("height", 100)
                 .attr("class", "node")
                 .on("click", (event, d) => showNodeDetails(d))
                 .call(drag(simulation));
@@ -135,6 +164,7 @@
                 .data(nodes)
                 .enter().append("text")
                 .attr("dy", 5)
+                .attr("font-size", "14px")
                 .attr("text-anchor", "middle")
                 .text(d => d.label);
 
@@ -173,22 +203,23 @@
             function showNodeDetails(d) {
                 document.getElementById("node-details").style.display = "block";
                 document.getElementById("edge-details").style.display = "none";
-                document.getElementById("node-id").textContent = d.id;
-                document.getElementById("node-label").textContent = d.label;
-                document.getElementById("node-description").textContent = d.description;
-                document.getElementById("node-image").src = d.image;
+                document.getElementById("state-id").textContent = d.id;
+                document.getElementById("state-description").textContent = d.description;
+                document.getElementById("state-package").textContent = d.package;
+                document.getElementById("state-activity").textContent = d.activity;
+                document.getElementById("state-image").src = d.image;
             }
 
             function showEdgeDetails(d) {
                 document.getElementById("node-details").style.display = "none";
                 document.getElementById("edge-details").style.display = "block";
-                document.getElementById("edge-id").textContent = d.id;
-                document.getElementById("edge-from").textContent = d.source.id;
-                document.getElementById("edge-to").textContent = d.target.id;
-                document.getElementById("edge-label").textContent = d.label;
+                document.getElementById("edge-id").textContent = d.label;
+                document.getElementById("edge-type").textContent = d.events[0].event_type
+                document.getElementById("view-image").src =".\\data\\com.tencent.mm\\"+ d.events[0].view_images[0]
                 document.getElementById("edge-from-image").src = nodes.find(node => node.id === d.source.id).image;
                 document.getElementById("edge-to-image").src = nodes.find(node => node.id === d.target.id).image;
             }
         // });
+    })
     </script>
 </body>
