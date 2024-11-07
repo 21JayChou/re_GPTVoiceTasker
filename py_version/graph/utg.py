@@ -2,7 +2,7 @@
 import json
 import os
 import random
-import datetime
+from datetime import datetime
 import networkx as nx
 from state import State
 from device import Device
@@ -21,11 +21,10 @@ class UTG:
         self.explored_state_strs = set()
         self.reached_state_strs = set()
         self.reached_activities = set()
-
         self.first_state = None
         self.last_state = None
 
-        self.start_time = datetime.datetime.now()
+        self.start_time = datetime.now()
         
     @property
     def first_state_str(self):
@@ -124,7 +123,9 @@ class UTG:
         utg_dir = f'./data/{package}'
         if not os.path.exists(utg_dir):
             os.makedirs(utg_dir)
-        utg_file_path = os.path.join(utg_dir, "utg.json")
+
+        tag = self.start_time.strftime("%Y-%m-%d %H:%M:%S")
+        utg_file_path = os.path.join(utg_dir, f"utg_{tag}.json")
         utg_file = open(utg_file_path, "w")
         utg_nodes = []
         utg_edges = []
@@ -165,12 +166,13 @@ class UTG:
 
             for event_str, event_info in sorted(iter(events.items()), key=lambda x: x[1]["id"]):
                 event_short_descs.append((event_info["id"], event_str))
-                view_images = [os.path.join(self.device.output_dir, "views", "view_"+ view["view_str"] + ".png")for view in event_info["event"].get_views()]
+                view = event_info["event"].get_view()
+                view_image = os.path.join(self.device.output_dir, "views", "view_"+ view["view_str"] + ".png")
                 event_list.append({
                     "event_str": event_str,
                     "event_id": event_info["id"],
                     "event_type": event_info["event"].event_type,
-                    "view_images": view_images
+                    "view_image": view_image
                 })
 
             utg_edge = {
